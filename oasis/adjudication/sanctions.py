@@ -133,6 +133,14 @@ class SanctionEngine:
         finally:
             conn.close()
 
+    def _compute_ema(self, old: float, score: float) -> float:
+        """Compute EMA: new = λ × old + (1 − λ) × score.
+
+        λ is taken from ``config.reputation_lambda``.
+        """
+        lam = self.config.reputation_lambda
+        return lam * old + (1 - lam) * score
+
     def reduce_reputation(
         self,
         agent_did: str,
@@ -141,9 +149,9 @@ class SanctionEngine:
     ) -> AdjudicationDecision:
         """EMA update: new_rep = λ * old_rep + (1-λ) * performance_score.
 
-        λ (lambda) is taken from config.reputation_alpha (default 0.5).
+        λ (lambda) is taken from config.reputation_lambda (default 0.5).
         """
-        lam = self.config.reputation_alpha
+        lam = self.config.reputation_lambda
         conn = self._connect(db_path)
         try:
             # Get current reputation
@@ -153,7 +161,7 @@ class SanctionEngine:
             ).fetchone()
             old_rep = agent["reputation_score"] if agent else 0.5
 
-            new_rep = lam * old_rep + (1 - lam) * performance_score
+            new_rep = self._compute_ema(old_rep, performance_score)
 
             # Update agent_registry
             conn.execute(

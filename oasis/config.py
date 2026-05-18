@@ -64,6 +64,7 @@ class PlatformConfig:
 
     # Reputation parameters
     reputation_alpha: float = 0.5
+    reputation_lambda: float = 0.5
     reputation_neutral: float = 0.5
 
     # System scaling & modules

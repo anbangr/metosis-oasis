@@ -144,7 +144,7 @@ class SettlementCalculator:
             ).fetchone()
             perf_score = validation["quality_score"] if validation else 0.7
 
-            lam = self.config.reputation_alpha
+            lam = self.config.reputation_lambda
             old_rep = reputation
             new_rep = lam * old_rep + (1 - lam) * perf_score
 
