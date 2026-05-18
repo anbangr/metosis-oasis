@@ -18,11 +18,11 @@ Tables
 14. reputation_ledger        — reputation score changelog
 15. message_log              — append-only protocol message log
 """
+
 from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Union
 
@@ -235,16 +235,54 @@ CREATE TABLE IF NOT EXISTS message_log (
 # ---------------------------------------------------------------------------
 
 _DEFAULT_CONSTITUTION = [
-    ("budget_cap_max",          1_000_000.0, "float",   "Maximum mission budget cap (tokens)"),
-    ("budget_cap_min",          1.0,         "float",   "Minimum mission budget cap (tokens)"),
-    ("quorum_threshold",        0.51,        "float",   "Fraction of eligible voters needed for quorum"),
-    ("max_deliberation_rounds", 3.0,         "integer", "Maximum deliberation rounds per session"),
-    ("reputation_floor",        0.1,         "float",   "Minimum reputation score to participate"),
-    ("fairness_hhi_threshold",  0.25,        "float",   "HHI threshold above which bid concentration is flagged"),
-    ("proposal_deadline_max_ms", 86_400_000.0, "integer", "Maximum proposal deadline (ms) — 24 hours"),
-    ("voting_method",           1.0,         "integer", "Voting method (1 = Copeland with Minimax tie-break)"),
-    ("max_dag_depth",           10.0,        "integer", "Maximum DAG depth (recursive decomposition limit)"),
-    ("max_dag_nodes",           50.0,        "integer", "Maximum nodes per proposal DAG"),
+    ("budget_cap_max", 1_000_000.0, "float", "Maximum mission budget cap (tokens)"),
+    ("budget_cap_min", 1.0, "float", "Minimum mission budget cap (tokens)"),
+    (
+        "quorum_threshold",
+        0.51,
+        "float",
+        "Fraction of eligible voters needed for quorum",
+    ),
+    (
+        "max_deliberation_rounds",
+        3.0,
+        "integer",
+        "Maximum deliberation rounds per session",
+    ),
+    ("reputation_floor", 0.1, "float", "Minimum reputation score to participate"),
+    (
+        "fairness_hhi_threshold",
+        0.25,
+        "float",
+        "HHI threshold above which bid concentration is flagged",
+    ),
+    ("fairness_minimum", 0.6, "float", "Minimum fairness score threshold"),
+    ("protocol_fee_bps", 200.0, "float", "Protocol fee in basis points"),
+    (
+        "reputation_alpha",
+        0.5,
+        "float",
+        "Reputation alpha parameter for multiplier slope",
+    ),
+    (
+        "proposal_deadline_max_ms",
+        86_400_000.0,
+        "integer",
+        "Maximum proposal deadline (ms) — 24 hours",
+    ),
+    (
+        "voting_method",
+        1.0,
+        "integer",
+        "Voting method (1 = Copeland with Minimax tie-break)",
+    ),
+    (
+        "max_dag_depth",
+        10.0,
+        "integer",
+        "Maximum DAG depth (recursive decomposition limit)",
+    ),
+    ("max_dag_nodes", 50.0, "integer", "Maximum nodes per proposal DAG"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -260,11 +298,13 @@ _DEFAULT_CLERKS = [
         "display_name": f"Clerk ({role.title()})",
         "human_principal": "platform@mitosis.dev",
         "clerk_role": role,
-        "authority_envelope": json.dumps({
-            "role": role,
-            "permissions": [f"{role}:*"],
-            "issued_at": "2026-01-01T00:00:00Z",
-        }),
+        "authority_envelope": json.dumps(
+            {
+                "role": role,
+                "permissions": [f"{role}:*"],
+                "issued_at": "2026-01-01T00:00:00Z",
+            }
+        ),
     }
     for role in _CLERK_ROLES
 ]
@@ -273,6 +313,7 @@ _DEFAULT_CLERKS = [
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def create_governance_tables(db_path: Union[str, Path]) -> None:
     """Create all 15 governance tables.  Idempotent (IF NOT EXISTS)."""

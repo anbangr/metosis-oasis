@@ -1,4 +1,5 @@
 """P1 — Test constitution parameter seeding and updates."""
+
 import sqlite3
 from pathlib import Path
 
@@ -14,6 +15,9 @@ EXPECTED_PARAMS = {
     "max_deliberation_rounds": 3.0,
     "reputation_floor": 0.1,
     "fairness_hhi_threshold": 0.25,
+    "fairness_minimum": 0.6,
+    "protocol_fee_bps": 200.0,
+    "reputation_alpha": 0.5,
     "proposal_deadline_max_ms": 86_400_000.0,
     "voting_method": 1.0,
     "max_dag_depth": 10.0,
@@ -29,13 +33,13 @@ def _connect(db_path: Path) -> sqlite3.Connection:
 
 
 def test_default_params_seeded(db_path: Path):
-    """seed_constitution inserts all 10 default parameters."""
+    """seed_constitution inserts all 13 default parameters."""
     create_governance_tables(db_path)
     seed_constitution(db_path)
     conn = _connect(db_path)
     rows = conn.execute("SELECT param_name FROM constitution").fetchall()
     conn.close()
-    assert len(rows) == 10
+    assert len(rows) == 13
 
 
 def test_all_params_present(db_path: Path):
@@ -91,4 +95,4 @@ def test_seed_idempotent(db_path: Path):
     conn = _connect(db_path)
     rows = conn.execute("SELECT COUNT(*) AS cnt FROM constitution").fetchone()
     conn.close()
-    assert rows["cnt"] == 10
+    assert rows["cnt"] == 13
