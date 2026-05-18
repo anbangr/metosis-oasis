@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mitosis-oasis"
-version = "0.2.5"
+version = "0.2.6"
 description = "Open Agents Social Interaction Simulations on a Large Scale"
 authors = ["CAMEL-AI.org"]
 readme = "README.md"
