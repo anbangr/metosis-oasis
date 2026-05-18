@@ -1,4 +1,5 @@
 """P1 — Test constitution parameter seeding and updates."""
+
 import sqlite3
 from pathlib import Path
 
